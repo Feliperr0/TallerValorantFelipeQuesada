@@ -81,12 +81,12 @@ function App() {
 }
 function AgentCard({ agent }) {
   return (
-    <div className="card max-w-sm bg-white rounded-lg shadow-md hover:scale-105 transition-transform hover:bg-gradient-to-br hover:from-red-500 hover:to-purple-500 hover:text-white m-4 sm:w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
+    <div className="card max-w-xs bg-gray-900 rounded-lg shadow-lg hover:scale-105 transition-transform hover:bg-gradient-to-br hover:from-red-600 hover:to-purple-600 hover:text-white m-4 sm:w-full md:w-1/3 lg:w-1/4 xl:w-1/5">
       <img src={agent.displayIcon} alt={agent.displayName} className="rounded-t-lg w-full" />
-      <div className='p-5'>
-        <h2 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">{agent.displayName}</h2>
-        <h3 className='mb-2 text-2xl font-bold tracking-tight text-gray-900'>{agent.role.displayName}</h3>
-        <p className="mb-3 font-normal text-gray-900">{agent.description}</p>
+      <div className='p-4'>
+        <h2 className="mb-2 text-xl font-bold tracking-tight text-white">{agent.displayName}</h2>
+        <h3 className='mb-2 text-lg font-semibold tracking-tight text-gray-300'>{agent.role.displayName}</h3>
+        <p className="mb-3 font-normal text-gray-400">{agent.description}</p>
       </div>
     </div>
   );
@@ -170,11 +170,14 @@ function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
   }
 
   return (
-    <nav>
+    <nav className="bg-gray-900 p-4 rounded-lg shadow-lg">
       <ul className="pagination flex justify-center space-x-2">
         {pageNumbers.map(number => (
-          <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
-            <button onClick={() => paginate(number)} className="page-link">
+          <li key={number} className={`page-item ${currentPage === number ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'} rounded-full`}>
+            <button 
+              onClick={() => paginate(number)} 
+              className={`page-link px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-110 ${currentPage === number ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
+            >
               {number}
             </button>
           </li>
