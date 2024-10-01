@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-
 function App() {
   const [agents, setAgents] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true')
@@ -13,7 +14,7 @@ function App() {
         setAgents(data.data);
       })
       .catch(error => {
-        console.error('Error fetching the agents:', error);
+        console.error('Can´t call the agents:', error);
       });
   }, []);
 
@@ -23,6 +24,12 @@ function App() {
         ? prevRoles.filter(r => r !== role)
         : [...prevRoles, role]
     );
+    setCurrentPage(1); // Resetear a la primera página cuando se cambian los filtros
+  };
+
+  const handleSearchChange = (text) => {
+    setSearchText(text);
+    setCurrentPage(1); // Resetear a la primera página cuando se cambia el texto de búsqueda
   };
 
   const filteredAgents = agents.filter(agent => {
@@ -31,10 +38,18 @@ function App() {
     return matchesSearchText && matchesRole;
   });
 
+  // Obtener los agentes actuales
+  const indexOfLastAgent = currentPage * itemsPerPage;
+  const indexOfFirstAgent = indexOfLastAgent - itemsPerPage;
+  const currentAgents = filteredAgents.slice(indexOfFirstAgent, indexOfLastAgent);
+
+  // Cambiar de página
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <>
       <div className='flex justify-end'>
-        <Navbar searchText={searchText} setSearchText={setSearchText} />
+        <Navbar searchText={searchText} setSearchText={handleSearchChange} />
       </div>
       <div className="text-xl text-left font-bold text-red-600">VALORANT</div>
       <div className="text-xl text-left font-bold">DISCOVER</div>
@@ -45,16 +60,25 @@ function App() {
       <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-4">Agents of Valorant</h1>
-        <div className="cards-container flex flex-wrap justify-center">
-          {filteredAgents.map((agent) => (
-            <AgentCard key={agent.uuid} agent={agent} />
-          ))}
-        </div>
+        {currentAgents.length > 0 ? (
+          <div className="cards-container flex flex-wrap justify-center">
+            {currentAgents.map((agent) => (
+              <AgentCard key={agent.uuid} agent={agent} />
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-xl text-gray-500">No agents found</p>
+        )}
+        <Pagination
+          itemsPerPage={itemsPerPage}
+          totalItems={filteredAgents.length}
+          paginate={paginate}
+          currentPage={currentPage}
+        />
       </div>
     </>
   );
 }
-
 function AgentCard({ agent }) {
   return (
     <div className="card max-w-sm bg-white rounded-lg shadow-md hover:scale-105 transition-transform hover:bg-gradient-to-br hover:from-red-500 hover:to-purple-500 hover:text-white m-4 sm:w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
@@ -135,6 +159,28 @@ function AgentRoleCheckboxes({ selectedRoles, handleRoleChange }) {
         </div>
       ))}
     </div>
+  );
+}
+
+function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
+  const pageNumbers = [];
+
+  for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  return (
+    <nav>
+      <ul className="pagination flex justify-center space-x-2">
+        {pageNumbers.map(number => (
+          <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+            <button onClick={() => paginate(number)} className="page-link">
+              {number}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
