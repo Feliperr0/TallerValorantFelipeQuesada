@@ -80,8 +80,18 @@ function App() {
         <h1>Create your team!</h1>
       </div>
       <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
+      
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-4">Agents of Valorant</h1>
+        <button
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={() => setShowFavorites(!showFavorites)}
+      >
+        {showFavorites ? 'Hide Team' : 'Show Team'}
+      </button>
+      {showFavorites && (
+        <FavoritesModal favorites={favorites} removeFavorite={removeFavorite} closeModal={() => setShowFavorites(false)} />
+      )}
         {currentAgents.length > 0 ? (
           <div className="cards-container flex flex-wrap justify-center">
             {currentAgents.map((agent) => (
@@ -104,15 +114,7 @@ function App() {
           currentPage={currentPage}
         />
       </div>
-      <button
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={() => setShowFavorites(!showFavorites)}
-      >
-        {showFavorites ? 'Hide Team' : 'Show Team'}
-      </button>
-      {showFavorites && (
-        <FavoritesModal favorites={favorites} removeFavorite={removeFavorite} closeModal={() => setShowFavorites(false)} />
-      )}
+      
     </>
   );
 }
