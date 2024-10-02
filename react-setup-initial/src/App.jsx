@@ -5,6 +5,8 @@ function App() {
   const [searchText, setSearchText] = useState("");
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [favorites, setFavorites] = useState([]);
+  const [showFavorites, setShowFavorites] = useState(false);
   const itemsPerPage = 6;
 
   useEffect(() => {
@@ -14,9 +16,17 @@ function App() {
         setAgents(data.data);
       })
       .catch(error => {
-        console.error('Can´t call the agents:', error);
+        console.error("Can´t call the agents:", error);
       });
+
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(storedFavorites);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
+  console.log(favorites)
 
   const handleRoleChange = (role) => {
     setSelectedRoles(prevRoles =>
@@ -30,6 +40,18 @@ function App() {
   const handleSearchChange = (text) => {
     setSearchText(text);
     setCurrentPage(1); // Resetear a la primera página cuando se cambia el texto de búsqueda
+  };
+
+  const addFavorite = (agent) => {
+    if (favorites.length < 5) {
+      setFavorites([...favorites, agent]);
+    } else {
+      alert('Maximum agent limit reached (5)');
+    }
+  };
+
+  const removeFavorite = (agent) => {
+    setFavorites(favorites.filter(fav => fav.uuid !== agent.uuid));
   };
 
   const filteredAgents = agents.filter(agent => {
@@ -63,7 +85,13 @@ function App() {
         {currentAgents.length > 0 ? (
           <div className="cards-container flex flex-wrap justify-center">
             {currentAgents.map((agent) => (
-              <AgentCard key={agent.uuid} agent={agent} />
+              <AgentCard
+                key={agent.uuid}
+                agent={agent}
+                addFavorite={addFavorite}
+                removeFavorite={removeFavorite}
+                isFavorite={favorites.some(fav => fav.uuid === agent.uuid)}
+              />
             ))}
           </div>
         ) : (
@@ -76,17 +104,51 @@ function App() {
           currentPage={currentPage}
         />
       </div>
+      <button
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={() => setShowFavorites(!showFavorites)}
+      >
+        {showFavorites ? 'Hide Team' : 'Show Team'}
+      </button>
+      {showFavorites && (
+        <FavoritesModal favorites={favorites} removeFavorite={removeFavorite} closeModal={() => setShowFavorites(false)} />
+      )}
     </>
   );
 }
-function AgentCard({ agent }) {
+
+
+function AgentCard({ agent, addFavorite, removeFavorite, isFavorite }) {
+  const [details, setDetails] = useState(false);
+
+  function handleClickDetails() {
+    setDetails(!details);
+  }
+
   return (
     <div className="card max-w-xs bg-gray-900 rounded-lg shadow-lg hover:scale-105 transition-transform hover:bg-gradient-to-br hover:from-red-600 hover:to-purple-600 hover:text-white m-4 sm:w-full md:w-1/3 lg:w-1/4 xl:w-1/5">
       <img src={agent.displayIcon} alt={agent.displayName} className="rounded-t-lg w-full" />
       <div className='p-4'>
         <h2 className="mb-2 text-xl font-bold tracking-tight text-white">{agent.displayName}</h2>
+        <h2 className='mb-2 text-lg font-semibold tracking-tight text-gray-300'>Role:</h2>
         <h3 className='mb-2 text-lg font-semibold tracking-tight text-gray-300'>{agent.role.displayName}</h3>
-        <p className="mb-3 font-normal text-gray-400">{agent.description}</p>
+      
+        <button className='bg-yellow-500 text-black px-4 py-2 font-bold w-full' onClick={handleClickDetails}>
+          {details ? 'Hide Details' : 'Read More'}
+        </button>
+
+        {details && (
+          <div className='mt-4'>
+            <p className="text-gray-300">{agent.description}</p>
+          </div>
+        )}
+
+        <button
+          className={`mt-2 px-4 py-2 font-bold w-full ${isFavorite ? 'bg-red-500 text-white' : 'bg-green-500 text-black'}`}
+          onClick={() => isFavorite ? removeFavorite(agent) : addFavorite(agent)}
+        >
+          {isFavorite ? 'Remove from your team' : 'Add to your team'}
+        </button>
       </div>
     </div>
   );
@@ -101,7 +163,7 @@ function SearchBar({ searchText, setSearchText }) {
     <div className="flex items-center space-x-2">
       <input
         type="text"
-        placeholder="Buscar agentes..."
+        placeholder="Search Agents..."
         value={searchText}
         onChange={handleSearchChange}
         className="p-2 mb-2 w-full max-w-md border border-gray-300 rounded"
@@ -109,7 +171,7 @@ function SearchBar({ searchText, setSearchText }) {
       <button
         type="button"
         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded shadow-md"
-        aria-label="Buscar"
+        aria-label="Search"
       >
         🔍︎
       </button>
@@ -174,8 +236,8 @@ function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
       <ul className="pagination flex justify-center space-x-2">
         {pageNumbers.map(number => (
           <li key={number} className={`page-item ${currentPage === number ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'} rounded-full`}>
-            <button 
-              onClick={() => paginate(number)} 
+            <button
+              onClick={() => paginate(number)}
               className={`page-link px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-110 ${currentPage === number ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'}`}
             >
               {number}
@@ -186,5 +248,38 @@ function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
     </nav>
   );
 }
+function FavoritesModal({ favorites, removeFavorite, closeModal }) {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-gray-800 rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-white">
+            {favorites.length > 0 ? "Your Team" : "Empty Team"}
+          </h2>
+          <button className="text-white text-xl border-solid bg-red-600" onClick={closeModal}>Hide Team</button>
+        </div>
+        {favorites.length > 0 ? (
+          <div className="flex flex-wrap justify-center">
+            {favorites.map((agent) => (
+              <div key={agent.uuid} className="card max-w-xs bg-gray-900 rounded-lg shadow-lg m-4">
+                <img src={agent.displayIcon} alt={agent.displayName} className="rounded-t-lg w-full" />
+                <div className='p-4'>
+                  <h2 className="mb-2 text-xl font-bold tracking-tight text-white">{agent.displayName}</h2>
+                  <h2 className='mb-2 text-lg font-semibold tracking-tight text-gray-300'>Role:</h2>
+                  <h3 className='mb-2 text-lg font-semibold tracking-tight text-gray-300'>{agent.role.displayName}</h3>
+                  <button className="mt-2 bg-red-500 text-white px-4 py-2 font-bold w-full"
+                   onClick={() => removeFavorite(agent)} >  Remove from your team  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-xl text-gray-500">Your team is Empty</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 export default App;
