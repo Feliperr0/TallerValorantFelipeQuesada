@@ -10,36 +10,38 @@ function App() {
   const itemsPerPage = 6;
 
   useEffect(() => {
-    fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true')
-      .then(response => response.json())
-      .then(data => {
+    const CallAGents = async () => {
+      try {
+        const response = await fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true');
+        const data = await response.json();
         setAgents(data.data);
-      })
-      .catch(error => {
-        console.error("Can´t call the agents:", error);
-      });
-
+      } catch (error) {
+        console.error("Can't call the agents:", error);
+      }
+    };
+  
+    CallAGents();
+  
     const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
     setFavorites(storedFavorites);
   }, []);
-
+  
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
-  console.log(favorites)
+  
+  console.log(favorites);
 
   const handleRoleChange = (role) => {
-    setSelectedRoles(prevRoles =>
-      prevRoles.includes(role)
-        ? prevRoles.filter(r => r !== role)
-        : [...prevRoles, role]
+    setSelectedRoles(rolesS =>
+      rolesS.includes(role) ? rolesS.filter(r => r !== role) : [...rolesS, role]
     );
-    setCurrentPage(1); // Resetear a la primera página cuando se cambian los filtros
+    setCurrentPage(1); // 
   };
 
   const handleSearchChange = (text) => {
     setSearchText(text);
-    setCurrentPage(1); // Resetear a la primera página cuando se cambia el texto de búsqueda
+    setCurrentPage(1); // con esto se controla que se renderice la primera página cuando se cambia el texto de búsqueda
   };
 
   const addFavorite = (agent) => {
@@ -55,17 +57,18 @@ function App() {
   };
 
   const filteredAgents = agents.filter(agent => {
-    const matchesSearchText = agent.displayName.toLowerCase().includes(searchText.toLowerCase());
-    const matchesRole = selectedRoles.length === 0 || selectedRoles.includes(agent.role.displayName);
-    return matchesSearchText && matchesRole;
+    const findSearchText = agent.displayName.toLowerCase().includes(searchText.toLowerCase());
+    const findRole = selectedRoles.length === 0 || selectedRoles.includes(agent.role.displayName);
+    return findSearchText && findRole;
   });
 
-  // Obtener los agentes actuales
+  // control de páginacion
   const indexOfLastAgent = currentPage * itemsPerPage;
   const indexOfFirstAgent = indexOfLastAgent - itemsPerPage;
   const currentAgents = filteredAgents.slice(indexOfFirstAgent, indexOfLastAgent);
+  console.log(currentAgents)
 
-  // Cambiar de página
+  // para cambiar la págiba
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
@@ -80,18 +83,8 @@ function App() {
         <h1>Create your team!</h1>
       </div>
       <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
-      
       <div className="container mx-auto">
         <h1 className="text-3xl font-bold mb-4">Agents of Valorant</h1>
-        <button
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={() => setShowFavorites(!showFavorites)}
-      >
-        {showFavorites ? 'Hide Team' : 'Show Team'}
-      </button>
-      {showFavorites && (
-        <FavoritesModal favorites={favorites} removeFavorite={removeFavorite} closeModal={() => setShowFavorites(false)} />
-      )}
         {currentAgents.length > 0 ? (
           <div className="cards-container flex flex-wrap justify-center">
             {currentAgents.map((agent) => (
@@ -114,7 +107,15 @@ function App() {
           currentPage={currentPage}
         />
       </div>
-      
+      <button
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={() => setShowFavorites(!showFavorites)}
+      >
+        {showFavorites ? 'Hide Team' : 'Show Team'}
+      </button>
+      {showFavorites && (
+        <FavoritesModal favorites={favorites} removeFavorite={removeFavorite} closeModal={() => setShowFavorites(false)} />
+      )}
     </>
   );
 }
