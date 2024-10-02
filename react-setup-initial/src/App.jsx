@@ -31,7 +31,7 @@ function App() {
     setFavorites(localFavorites);
   }, []);
 
- 
+
 
   const handleRoleChange = (role) => {
     setSelectedRoles(rolesSelect =>
@@ -72,23 +72,26 @@ function App() {
   // para cambiar la págiba
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
- 
+
 
 
   return (
     <>
       <main className='bg bg-gray-500'>
+      
+        <div className=' bg-gray-900'>
+          <div className="text-4xl font-bold text-red-600 p-2">VALORANT</div>
+          <div className="text-2xl font-bold m-3 text-yellow-500">DISCOVER</div>
+          <div className="text-2xl font-bold m-3 text-blue-400">ALL THE AGENTS!</div>
+        </div>
         <div className='flex justify-end'>
           <Navbar searchText={searchText} setSearchText={handleSearchChange} />
         </div>
-        <div className="text-xl text-left font-bold text-red-600 p-2">VALORANT</div>
-        <div className="text-xl text-left font-bold m-3">DISCOVER</div>
-        <div className="text-xl text-left font-bold m-3">ALL THE AGENTS!</div>
         <div>
           <h1>Create your team!</h1>
         </div>
         <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
-        <div className="container mx-auto"> 
+        <div className="container mx-auto">
 
 
           <h1 className="text-3xl font-bold mb-4">Agents of Valorant</h1>
@@ -254,7 +257,7 @@ function AgentRoleCheckboxes({ selectedRoles, handleRoleChange }) {
 
 function FavoritesModal({ favorites, removeFavorite, closeModal }) {
 
-  
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-gray-800 rounded-lg p-6 w-11/12 md:w-2/3 lg:w-1/2">
