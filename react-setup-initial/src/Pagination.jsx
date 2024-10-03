@@ -9,7 +9,10 @@ function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
     }
   
     return (
-      <nav className="bg-gray-900 p-4 rounded-lg shadow-lg">
+        
+
+        <div className="w-full">
+      <div className="bg-gray-900 p-4   ">
         <ul className="pagination flex justify-center space-x-2">
           {pageNumbers.map(number => (
             <li key={number} className={`page-item ${currentPage === number ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'} rounded-full`}>
@@ -22,7 +25,8 @@ function Pagination({ itemsPerPage, totalItems, paginate, currentPage }) {
             </li>
           ))}
         </ul>
-      </nav>
+      </div>
+      </div>
     );
   }
 

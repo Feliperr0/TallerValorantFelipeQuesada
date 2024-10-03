@@ -78,23 +78,31 @@ function App() {
   return (
     <>
       <main className='bg bg-gray-500'>
-      
+
         <div className=' bg-gray-900'>
           <div className="text-4xl font-bold text-red-600 p-2">VALORANT</div>
           <div className="text-2xl font-bold m-3 text-yellow-500">DISCOVER</div>
           <div className="text-2xl font-bold m-3 text-blue-400">ALL THE AGENTS!</div>
         </div>
         <div className='flex justify-end'>
-          <Navbar searchText={searchText} setSearchText={handleSearchChange} />
+
         </div>
         <div>
-          <h1>Create your team!</h1>
+          <h1 className="text-5xl font-bold mb-4">Agents of Valorant</h1>
+
         </div>
-        <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
-        <div className="container mx-auto">
+        <div className='flex justify-around flex-col '>
+          <div className="flex justify-end p-3">
+            <Navbar searchText={searchText} setSearchText={handleSearchChange} />
+          </div>
+          <div>
+            <AgentRoleCheckboxes selectedRoles={selectedRoles} handleRoleChange={handleRoleChange} />
+          </div>
+        </div>
+        <div className="container mx-auto w-full" >
+          <h1 className='text-3xl font-bold mb-4'>Create your team!</h1>
 
 
-          <h1 className="text-3xl font-bold mb-4">Agents of Valorant</h1>
           <ButtonModal className="p-4" favorites={favorites} removeFavorite={removeFavorite}></ButtonModal>
           {loading ? (<div>Loading...</div>
           ) : (
@@ -114,10 +122,13 @@ function App() {
               <p className="text-center text-xl text-gray-500">No agents found</p>
             )
           )}
-          <Pagination itemsPerPage={itemsPerPage}
-            totalItems={filteredAgents.length}
-            paginate={paginate}
-            currentPage={currentPage}></Pagination>
+          <div className='bg-red-500 border-solid p-1 w-full' >
+            <Pagination itemsPerPage={itemsPerPage}
+              totalItems={filteredAgents.length}
+              paginate={paginate}
+              currentPage={currentPage}></Pagination>
+          </div>
+
         </div>
 
 
@@ -217,7 +228,6 @@ function Navbar({ searchText, setSearchText }) {
 
   );
 }
-
 function AgentRoleCheckboxes({ selectedRoles, handleRoleChange }) {
   const [roles, setRoles] = useState([]);
 
@@ -238,17 +248,17 @@ function AgentRoleCheckboxes({ selectedRoles, handleRoleChange }) {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-900 rounded-lg">
       {roles.map(role => (
-        <div key={role} className="flex justify-center items-center mb-2">
+        <div key={role} className="flex justify-center items-center mb-2 bg-gray-800 p-2 rounded-md shadow-md">
           <input
             type="checkbox"
             id={role}
-            className="mr-2"
+            className="mr-2 accent-red-500"
             checked={selectedRoles.includes(role)}
             onChange={() => handleRoleChange(role)}
           />
-          <label htmlFor={role} className="text-sm">{role}</label>
+          <label htmlFor={role} className="text-sm text-white">{role}</label>
         </div>
       ))}
     </div>
